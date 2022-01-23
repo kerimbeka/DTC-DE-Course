@@ -24,6 +24,20 @@ def main(params):
 
     engine = create_engine(f'postgresql://{user}:{password}@{host}:{port}/{db}')
 
+    url_2 = "https://s3.amazonaws.com/nyc-tlc/misc/taxi+_zone_lookup.csv"
+    
+    csv_name_2 = 'output2.csv'
+
+    os.system(f"wget {url_2} -O {csv_name_2}")
+
+    df_zones = pd.read_csv(csv_name_2)
+
+    df_zones.head(n=0).to_sql(name='zones', con=engine, if_exists='replace')
+
+    df_zones.to_sql(name='zones', con=engine, if_exists='replace')
+
+
+
     df_iter = pd.read_csv(csv_name, iterator=True, chunksize=100000)
 
     df = next(df_iter)
@@ -39,7 +53,10 @@ def main(params):
     while True: 
         t_start = time()
 
-        df = next(df_iter)
+        try:
+            df = next(df_iter)
+        except:
+              break
 
         df.tpep_pickup_datetime = pd.to_datetime(df.tpep_pickup_datetime)
         df.tpep_dropoff_datetime = pd.to_datetime(df.tpep_dropoff_datetime)
@@ -49,6 +66,8 @@ def main(params):
         t_end = time()
 
         print('inserted another chunk, took %.3f second' % (t_end - t_start))
+    
+
 
 
 if __name__ == '__main__':

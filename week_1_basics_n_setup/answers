@@ -1,0 +1,62 @@
+Question 1: Google Cloud SDK 369.0.0
+            bq 2.0.72
+            core 2022.01.14
+            gsutil 5.6
+
+Question 2: google_bigquery_dataset.dataset: Creating...
+google_storage_bucket.data-lake-bucket: Creating...
+google_storage_bucket.data-lake-bucket: Creation complete after 1s [id=dtc_data_lake_charged-sled-339120]
+google_bigquery_dataset.dataset: Creation complete after 2s [id=projects/charged-sled-339120/datasets/trips_data_all]
+
+Apply complete! Resources: 2 added, 0 changed, 0 destroyed.
+
+
+Question 3: 53024
+
+SELECT COUNT(1)
+FROM public.yellow_taxi_trips t
+Where 
+	Cast(t."tpep_pickup_datetime" as DATE) = DATE('2021-01-15')
+
+Question 4: "2021-01-20"
+
+SELECT Cast(t."tpep_pickup_datetime" as DATE) as day, max(tip_amount)
+FROM public.yellow_taxi_trips t
+Where 
+	Cast(t."tpep_pickup_datetime" as DATE) >= DATE('2021-01-01') AND
+	Cast(t."tpep_pickup_datetime" as DATE) <= DATE('2021-01-31')
+Group By
+	Cast(t."tpep_pickup_datetime" as DATE)
+Order By 2 DESC
+
+Question 5: Upper East Side South
+
+SELECT zones."Zone"
+From zones
+where zones."LocationID"= (SELECT t."DOLocationID"
+							FROM 
+								yellow_taxi_trips t
+							WHERE 
+								Cast(t."tpep_pickup_datetime" as DATE) = DATE('2021-01-14') AND
+								t."PULocationID" = (SELECT zones."LocationID"
+													From zones
+													Where zones."Zone" = 'Central Park')
+							Group by 
+								t."DOLocationID"
+							Order by COUNT(1) DESC
+							LIMIT 1
+						  )
+
+
+Question 6: Alphabet City/Unknown
+
+SELECT CONCAT(zpu."Zone",' / ', zdo."Zone") AS "pickup/dropoff", avg(t.total_amount)
+FROM
+	yellow_taxi_trips t,
+	zones zpu,
+	zones zdo
+where  t."PULocationID"=zpu."LocationID"
+	AND t."DOLocationID" = zdo."LocationID"
+GROUP BY 1
+ORDER BY 2 DESC
+LIMIT 1
