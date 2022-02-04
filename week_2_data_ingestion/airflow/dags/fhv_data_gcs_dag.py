@@ -16,16 +16,12 @@ PROJECT_ID = os.environ.get("GCP_PROJECT_ID")
 BUCKET = os.environ.get("GCP_GCS_BUCKET")
 
 AIRFLOW_HOME = os.environ.get("AIRFLOW_HOME", "/opt/airflow/")
-URL_PREFIX = 'https://s3.amazonaws.com/nyc-tlc/trip+data' 
-DATAFILE = 'yellow_tripdata_{{ execution_date.strftime(\'%Y-%m\') }}.csv'
-URL_TEMPLATE = URL_PREFIX + '/yellow_tripdata_{{ execution_date.strftime(\'%Y-%m\') }}.csv'
-OUTPUT_FILE_TEMPLATE = AIRFLOW_HOME + '/output_{{ execution_date.strftime(\'%Y-%m\') }}.csv'
-PARQUET_FILE_TEMPLATE = 'yellow_tripdata_{{ execution_date.strftime(\'%Y-%m\') }}.parquet'
+URL_PREFIX = 'https://nyc-tlc.s3.amazonaws.com/trip+data' 
+DATAFILE = 'fhv_tripdata_{{ execution_date.strftime(\'%Y-%m\') }}.csv'
+URL_TEMPLATE = URL_PREFIX + '/fhv_tripdata_{{ execution_date.strftime(\'%Y-%m\') }}.csv'
+OUTPUT_FILE_TEMPLATE = AIRFLOW_HOME + '/output_fhv_{{ execution_date.strftime(\'%Y-%m\') }}.csv'
+PARQUET_FILE_TEMPLATE = 'fhv_tripdata_{{ execution_date.strftime(\'%Y-%m\') }}.parquet'
 
-#dataset_file = "yellow_tripdata_2021-01.csv"
-#dataset_url = f"https://s3.amazonaws.com/nyc-tlc/trip+data/{dataset_file}"
-
-#parquet_file = dataset_file.replace('.csv', '.parquet')
 BIGQUERY_DATASET = os.environ.get("BIGQUERY_DATASET", 'trips_data_all')
 
 
@@ -67,10 +63,10 @@ default_args = {
 
 # NOTE: DAG declaration - using a Context Manager (an implicit way)
 with DAG(
-    dag_id="data_ingestion_gcs_dag",
+    dag_id="fhv_data_gcs_dag",
     default_args=default_args,
     start_date = datetime(2019, 1, 1),
-    end_date =  datetime(2020, 12, 31),
+    end_date =  datetime(2020, 1, 1),
     schedule_interval = '@monthly',
     catchup=True,
     max_active_runs=3,

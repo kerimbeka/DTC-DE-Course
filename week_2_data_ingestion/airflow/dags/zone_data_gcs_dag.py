@@ -16,16 +16,12 @@ PROJECT_ID = os.environ.get("GCP_PROJECT_ID")
 BUCKET = os.environ.get("GCP_GCS_BUCKET")
 
 AIRFLOW_HOME = os.environ.get("AIRFLOW_HOME", "/opt/airflow/")
-URL_PREFIX = 'https://s3.amazonaws.com/nyc-tlc/trip+data' 
-DATAFILE = 'yellow_tripdata_{{ execution_date.strftime(\'%Y-%m\') }}.csv'
-URL_TEMPLATE = URL_PREFIX + '/yellow_tripdata_{{ execution_date.strftime(\'%Y-%m\') }}.csv'
-OUTPUT_FILE_TEMPLATE = AIRFLOW_HOME + '/output_{{ execution_date.strftime(\'%Y-%m\') }}.csv'
-PARQUET_FILE_TEMPLATE = 'yellow_tripdata_{{ execution_date.strftime(\'%Y-%m\') }}.parquet'
+URL_PREFIX = 'https://s3.amazonaws.com/nyc-tlc/misc' 
+DATAFILE = 'taxi+_zone_lookup.csv'
+URL_TEMPLATE = URL_PREFIX + '/taxi+_zone_lookup.csv'
+OUTPUT_FILE_TEMPLATE = AIRFLOW_HOME + '/output_zone.csv'
+PARQUET_FILE_TEMPLATE = 'taxi+_zone_lookup.parquet'
 
-#dataset_file = "yellow_tripdata_2021-01.csv"
-#dataset_url = f"https://s3.amazonaws.com/nyc-tlc/trip+data/{dataset_file}"
-
-#parquet_file = dataset_file.replace('.csv', '.parquet')
 BIGQUERY_DATASET = os.environ.get("BIGQUERY_DATASET", 'trips_data_all')
 
 
@@ -67,13 +63,11 @@ default_args = {
 
 # NOTE: DAG declaration - using a Context Manager (an implicit way)
 with DAG(
-    dag_id="data_ingestion_gcs_dag",
+    dag_id="zone_data_gcs_data",
     default_args=default_args,
-    start_date = datetime(2019, 1, 1),
-    end_date =  datetime(2020, 12, 31),
-    schedule_interval = '@monthly',
-    catchup=True,
-    max_active_runs=3,
+    start_date = days_ago(1),
+    catchup=False,
+    max_active_runs=1,
     tags=['dtc-de'],
 ) as dag:
 
